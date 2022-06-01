@@ -7,7 +7,7 @@ import logging
 
 
 def cvs_avg_and_variance(data):
-    '''Calculates average potential, current, and current variance from all cycles 
+    '''Calculates average potential, current, and current variance from all cycles
     (excluding first and last) for a given scan rate from a BioLogic txt file.'''
 
     cycle_num = data['cycle number'].unique()
@@ -49,8 +49,8 @@ def create_file_dict(rootdir, scan_rates):
     return file_dict
 
 
-def create_data_dict(file_dict):
-    ''''''
+def create_and_sort_data_dict(file_dict):
+    '''    '''
 
     data_dict = {}
 
@@ -76,12 +76,6 @@ def create_data_dict(file_dict):
             data_dict[key]['avg_current'].append(avg_current)
             data_dict[key]['current_var'].append(current_var)
 
-    return data_dict
-
-
-def sort_data_dict(data_dict):
-    ''''''
-
     for key in data_dict:
 
         for i in range(len(data_dict[key]['avg_potential'])):
@@ -98,6 +92,8 @@ def sort_data_dict(data_dict):
 
                     pop_current_var = data_dict[key]['current_var'][i].pop(0)
                     data_dict[key]['current_var'][i].append(pop_current_var)
+
+    return data_dict
 
 
 def check_and_downsample(data_dict):
@@ -135,6 +131,10 @@ def check_and_downsample(data_dict):
                 data_dict[key]['current_var'][idx] = var_dropped
 
 
+def get_weighted_avgs_std(data_dict):
+    pass
+
+
 def main():
 
     rootdir = 'C:/Users/Tyler/Desktop/glob_test'
@@ -142,11 +142,22 @@ def main():
 
     file_dict = create_file_dict(rootdir=rootdir, scan_rates=scan_rates)
 
-    data_dict = create_data_dict(file_dict=file_dict)
-
-    sort_data_dict(data_dict=data_dict)
+    data_dict = create_and_sort_data_dict(file_dict=file_dict)
 
     check_and_downsample(data_dict=data_dict)
+
+    # weighted_potential = (
+    #     ((data_dict[0.1]['cycles'][0]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_potential'][0])) +
+    #     ((data_dict[0.1]['cycles'][1]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_potential'][1])))
+
+    # weighted_current = (
+    #     ((data_dict[0.1]['cycles'][0]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_current'][0])) +
+    #     ((data_dict[0.1]['cycles'][1]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_current'][1])))
+
+    # sum_std = ((np.sqrt(
+    #     data_dict[0.1]['current_var'][0] + (data_dict[0.1]['current_var'][1]))))
+
+    # print(tyoe(weighted_current))
 
 
 if __name__ == "__main__":
