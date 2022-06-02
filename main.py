@@ -132,7 +132,24 @@ def check_and_downsample(data_dict):
 
 
 def get_weighted_avgs_std(data_dict):
-    pass
+
+    final_data = {}
+
+    for key in data_dict:
+        for idx, val in data_dict[key]:
+
+            weighted_potential = (
+                ((data_dict[key]['cycles'][0]/sum(data_dict[key]['cycles'])) * (data_dict[key]['avg_potential'][0])) + NEXT VAL
+            )
+
+            # weighted_current
+
+            # sum_std = ((np.sqrt(data_dict[0.1]['current_var'][0] + (data_dict[0.1]['current_var'][1]))))
+
+        final_data[key] = {'w_avg_potential': weighted_potential,
+                           'w_avg_current': weighted_current,
+                           'current_std': sum_std
+                           }
 
 
 def main():
@@ -145,19 +162,6 @@ def main():
     data_dict = create_and_sort_data_dict(file_dict=file_dict)
 
     check_and_downsample(data_dict=data_dict)
-
-    # weighted_potential = (
-    #     ((data_dict[0.1]['cycles'][0]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_potential'][0])) +
-    #     ((data_dict[0.1]['cycles'][1]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_potential'][1])))
-
-    # weighted_current = (
-    #     ((data_dict[0.1]['cycles'][0]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_current'][0])) +
-    #     ((data_dict[0.1]['cycles'][1]/sum(data_dict[0.1]['cycles'])) * (data_dict[0.1]['avg_current'][1])))
-
-    # sum_std = ((np.sqrt(
-    #     data_dict[0.1]['current_var'][0] + (data_dict[0.1]['current_var'][1]))))
-
-    # print(tyoe(weighted_current))
 
 
 if __name__ == "__main__":
