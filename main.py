@@ -136,20 +136,43 @@ def get_weighted_avgs_std(data_dict):
     final_data = {}
 
     for key in data_dict:
-        for idx, val in data_dict[key]:
 
-            weighted_potential = (
-                ((data_dict[key]['cycles'][0]/sum(data_dict[key]['cycles'])) * (data_dict[key]['avg_potential'][0])) + NEXT VAL
+        weighted_avg_potential = np.zeros(
+            len(data_dict[key]['avg_potential'][0])
+        )
+        weighted_avg_current = np.zeros(
+            len(data_dict[key]['avg_current'][0])
+        )
+        avg_current_std = np.zeros(
+            len(data_dict[key]['current_var'][0])
+        )
+
+        for idx, val in enumerate(data_dict[key]['avg_potential']):
+            weighted_avg_potential += (
+                np.asarray(val) * (
+                    data_dict[key]['cycles'][idx] /
+                    sum(data_dict[key]['cycles'])
+                )
             )
 
-            # weighted_current
+        for idx, val in enumerate(data_dict[key]['avg_current']):
+            weighted_avg_current += (
+                np.asarray(val) * (
+                    data_dict[key]['cycles'][idx] /
+                    sum(data_dict[key]['cycles'])
+                )
+            )
 
-            # sum_std = ((np.sqrt(data_dict[0.1]['current_var'][0] + (data_dict[0.1]['current_var'][1]))))
+        for idx, val in enumerate(data_dict[key]['current_var']):
+            avg_current_std += np.asarray(val)
 
-        final_data[key] = {'w_avg_potential': weighted_potential,
-                           'w_avg_current': weighted_current,
-                           'current_std': sum_std
-                           }
+        final_data[key] = {
+            'w_avg_potential': weighted_avg_potential,
+            'w_avg_current': weighted_avg_current,
+            'current_std_dev': np.sqrt(avg_current_std)
+        }
+
+    return final_data
 
 
 def main():
@@ -162,6 +185,8 @@ def main():
     data_dict = create_and_sort_data_dict(file_dict=file_dict)
 
     check_and_downsample(data_dict=data_dict)
+
+    final_data = get_weighted_avgs_std(data_dict=data_dict)
 
 
 if __name__ == "__main__":
