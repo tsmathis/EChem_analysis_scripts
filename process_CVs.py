@@ -129,6 +129,9 @@ class process_CVs:
                     data_dict[key]['avg_current'][idx] = current_dropped
                     data_dict[key]['current_var'][idx] = var_dropped
 
+    def apply_normalization(self, data_dict):
+        pass
+
     def get_weighted_avgs_std(self, data_dict):
         '''
         Generates dictionary containing the weighted averages of the
