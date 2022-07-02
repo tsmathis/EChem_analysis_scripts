@@ -5,33 +5,18 @@ import os
 
 class process_CVs:
 
-    def __init__(self, rootdir, scan_rates):
-        self.rootdir = rootdir
+    def __init__(self, scan_rates, mass=None, area=None, volume=None):
         self.scan_rates = scan_rates
-
-    def create_file_dict(self):
-        ''''''
-
-        file_dict = {}
-
-        directory_path = [x[0] for x in os.walk(self.rootdir)][1:]
-        file_path = [x[2] for x in os.walk(self.rootdir)][1:]
-
-        full_path_list = []
-        for idx, nested_list in enumerate(file_path):
-            temp = []
-            for element in nested_list:
-                temp.append('{}\\{}'.format(directory_path[idx], element))
-            full_path_list.append(temp)
-
-        for scan_rate, path in zip(self.scan_rates, full_path_list):
-            file_dict[scan_rate] = path
-
-        return file_dict
+        self.mass = mass
+        self.area = area
+        self.volume = volume
 
     def cvs_avg_and_variance(self, data):
-        '''Calculates average potential, current, and current variance from all cycles
-        (excluding first and last) for a given scan rate from a BioLogic txt file.'''
+        '''
+        Calculates average potential, averager current, and current variance 
+        for the second to n - 1 cycles for a given scan rate from a BioLogic 
+        txt file.
+        '''
 
         cycle_num = data['cycle number'].unique()
 
@@ -53,7 +38,12 @@ class process_CVs:
         return list(avg_potential), list(avg_current), list(current_var)
 
     def create_and_sort_data_dict(self, file_dict):
-        '''    '''
+        '''
+        Creates and then sorts a dictionary of the number of cycles,
+        average potentials, average currents, and current variances 
+        from the files listed in the file_dict. Entries are grouped
+        by scan rate.
+        '''
 
         data_dict = {}
 
@@ -103,7 +93,10 @@ class process_CVs:
         return data_dict
 
     def check_and_downsample(self, data_dict):
-        ''''''
+        '''
+        Checks number of data points for each entry in the data_dict. 
+        Downsamples any entry that is longer than the shortet entry. 
+        '''
 
         lengths = []
 
@@ -137,6 +130,12 @@ class process_CVs:
                     data_dict[key]['current_var'][idx] = var_dropped
 
     def get_weighted_avgs_std(self, data_dict):
+        '''
+        Generates dictionary containing the weighted averages of the
+        potenials and currents and the current standard deviation for
+        each scan rate in the data_dict. Weighted averages use the
+        number of cycles recorded at each scan rate
+        '''
 
         final_data = {}
 
@@ -148,33 +147,91 @@ class process_CVs:
             weighted_avg_current = np.zeros(
                 len(data_dict[key]['avg_current'][0])
             )
-            avg_current_std = np.zeros(
+            averaged_current_variance = np.zeros(
                 len(data_dict[key]['current_var'][0])
             )
 
-            for idx, val in enumerate(data_dict[key]['avg_potential']):
-                weighted_avg_potential += (
-                    np.asarray(val) * (
-                        data_dict[key]['cycles'][idx] /
-                        sum(data_dict[key]['cycles'])
-                    )
+            if self.mass != None:
+                weighted_avg_current_density = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
                 )
+                averaged_current_density_variance = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_spec_capacitance = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_spec_capacitance_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_spec_capacity = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_spec_capacity_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_spec_charge = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_spec_charge_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+
+            if self.area != None:
+                weighted_avg_areal_capacitance = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_areal_capacitance_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_areal_capacity = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_areal_capacity_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_areal_charge = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_areal_charge_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+
+            if self.volume != None:
+                weighted_avg_volume_capacitance = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_volume_capacitance_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_volume_capacity = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_volume_capacity_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+                weighted_avg_volume_charge = np.zeros(
+                    len(data_dict[key]['avg_current'][0])
+                )
+                avg_volume_charge_std_dev = np.zeros(
+                    len(data_dict[key]['current_var'][0])
+                )
+
+            for idx, val in enumerate(data_dict[key]['avg_potential']):
+                weighted_avg_potential += (np.asarray(val) * (
+                    data_dict[key]['cycles'][idx] / sum(data_dict[key]['cycles'])))
 
             for idx, val in enumerate(data_dict[key]['avg_current']):
-                weighted_avg_current += (
-                    np.asarray(val) * (
-                        data_dict[key]['cycles'][idx] /
-                        sum(data_dict[key]['cycles'])
-                    )
-                )
+                weighted_avg_current += (np.asarray(val) * (
+                    data_dict[key]['cycles'][idx] / sum(data_dict[key]['cycles'])))
 
             for idx, val in enumerate(data_dict[key]['current_var']):
-                avg_current_std += np.asarray(val)
+                averaged_current_variance += np.asarray(val)
 
             final_data[key] = {
                 'w_avg_potential': weighted_avg_potential,
                 'w_avg_current': weighted_avg_current,
-                'current_std_dev': np.sqrt(avg_current_std)
+                'current_std_dev': np.sqrt(averaged_current_variance)
             }
 
         return final_data
